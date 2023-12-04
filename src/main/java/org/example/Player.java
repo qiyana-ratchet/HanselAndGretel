@@ -45,19 +45,43 @@ public class Player {
         y += dy;
     }
 
-    public double getX() {
+    public int getX() {
         return x;
     }
 
-    public double getY() {
+    public int getY() {
         return y;
     }
 
     public void draw(Graphics g) {
         // Draw the player character using the loaded image
         if (playerImage != null) {
-            g.drawImage(playerImage, x, y, null);
+            g.drawImage(playerImage, x-10, y-28, null);
         }
+    }
+
+    public int getDx() {
+        return dx;
+    }
+
+    public int getDy() {
+        return dy;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public void setDx(int dx) {
+        this.dx = dx;
+    }
+
+    public void setDy(int dy) {
+        this.dy = dy;
     }
 
     // Implement other methods for player behavior

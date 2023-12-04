@@ -26,7 +26,8 @@ public class Game {
 
     public Game(String title, int width, int height) {
         display = new Display(title, width, height);
-        player = new Player(19 * 32, 19 * 32); // Spawn at array index (19, 19)
+//        player = new Player(19 * 32, 19 * 32); // Spawn at array index (19, 19) // Subtract 30 for the top bar
+        player = new Player(32, 32); // Spawn at array index (19, 19) // Subtract 30 for the top bar
 //        witch = new Witch(/* Initial witch position */);
         gameMap = new GameMap("src/main/resources/map.png");
         isRunning = false;
@@ -98,6 +99,36 @@ public class Game {
                 movable = false;
             }
 
+            // Get the player's current position
+            int playerX = player.getX();
+            int playerY = player.getY();
+
+            // Determine the player's next position based on input and movement direction
+            int nextPlayerX = playerX;
+            int nextPlayerY = playerY;
+
+            if (leftKeyPressed && movable) {
+                nextPlayerX = playerX - player.getDx();
+            } else if (rightKeyPressed && movable) {
+                nextPlayerX = playerX + player.getDx();
+            } else if (upKeyPressed && movable) {
+                nextPlayerY = playerY - player.getDy(); // Subtract 30 for the top bar
+            } else if (downKeyPressed && movable) {
+                nextPlayerY = playerY + player.getDy(); // Subtract 30 for the top bar
+            }
+
+            // Check if the next position is within bounds and not a wall
+            int tileSize = 32;
+            int nextTileType = gameMap.getTileAt(nextPlayerX / tileSize, (nextPlayerY) / tileSize);
+//            System.out.println("get Tile at X: "+ nextPlayerX / tileSize);
+//            System.out.println("get Tile at Y: "+(nextPlayerY) / tileSize);
+            if (nextTileType != 0) {
+                // Update the player's position only if the next tile is not a wall
+//                System.out.println(currentTime);
+                player.setX(nextPlayerX);
+                player.setY(nextPlayerY);
+            }
+
 //            player.update(); // You can implement player update logic if needed
 //            witch.update(); // You can implement witch update logic if needed
 //            display.clear();
@@ -116,25 +147,25 @@ public class Game {
             if (g != null) {
                 display.clear();
                 gameMap.draw(g);
-                if (leftKeyPressed && movable) {
-                    player.moveLeft();
-//                    System.out.println(player.getX()+ " " + player.getY());
-                }
-
-                if (rightKeyPressed && movable) {
-                    player.moveRight();
-//                    System.out.println(player.getX()+ " " + player.getY());
-                }
-
-                if (upKeyPressed && movable) {
-                    player.moveUp();
-//                    System.out.println(player.getX()+ " " + player.getY());
-                }
-
-                if (downKeyPressed && movable) {
-                    player.moveDown();
-//                    System.out.println(player.getX()+ " " + player.getY());
-                }
+//                if (leftKeyPressed && movable) {
+//                    player.moveLeft();
+////                    System.out.println(player.getX()+ " " + player.getY());
+//                }
+//
+//                if (rightKeyPressed && movable) {
+//                    player.moveRight();
+////                    System.out.println(player.getX()+ " " + player.getY());
+//                }
+//
+//                if (upKeyPressed && movable) {
+//                    player.moveUp();
+////                    System.out.println(player.getX()+ " " + player.getY());
+//                }
+//
+//                if (downKeyPressed && movable) {
+//                    player.moveDown();
+////                    System.out.println(player.getX()+ " " + player.getY());
+//                }
 
                 player.draw(g);
 //                witch.draw(g);
