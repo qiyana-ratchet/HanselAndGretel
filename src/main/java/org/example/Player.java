@@ -5,11 +5,14 @@ import java.awt.image.BufferedImage;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
 
 public class Player {
     private int x, y;  // Player's position on the map
     private int dx, dy; // Movement speed
     private BufferedImage playerImage; // Player's image
+    private int cookieCount;
 
     public Player(int initialX, int initialY) {
         x = initialX;
@@ -22,6 +25,27 @@ public class Player {
             playerImage = ImageIO.read(new File("src/main/resources/hansel.png"));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void draw(Graphics g) {
+        // Draw the player character using the loaded image
+        if (playerImage != null) {
+            g.drawImage(playerImage, x-10, y-28, null);
+        }
+    }
+
+    public void eatCookies(GameMap gameMap) {
+        List<Position> cookies = gameMap.getCookies();
+        Iterator<Position> iterator = cookies.iterator();
+
+        while (iterator.hasNext()) {
+            Position cookie = iterator.next();
+            if (x/32 == cookie.x && y/32 == cookie.y) {
+                // Player has eaten a cookie
+                iterator.remove(); // Remove the eaten cookie from the list
+                cookieCount++; // Increment the player's cookie count
+            }
         }
     }
 
@@ -51,13 +75,6 @@ public class Player {
 
     public int getY() {
         return y;
-    }
-
-    public void draw(Graphics g) {
-        // Draw the player character using the loaded image
-        if (playerImage != null) {
-            g.drawImage(playerImage, x-10, y-28, null);
-        }
     }
 
     public int getDx() {

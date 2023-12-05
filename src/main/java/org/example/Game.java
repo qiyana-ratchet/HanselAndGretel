@@ -24,11 +24,15 @@ public class Game {
 
     private boolean movable = true; // Initialize as movable
 
+    private double trackPlayerTimer = 0;
+    private final double TRACK_PLAYER_INTERVAL = 10; // 5 seconds in milliseconds
+    private double witchDeltaTime;
+
     public Game(String title, int width, int height) {
         display = new Display(title, width, height);
 //        player = new Player(19 * 32, 19 * 32); // Spawn at array index (19, 19) // Subtract 30 for the top bar
-        player = new Player(32, 32); // Spawn at array index (19, 19) // Subtract 30 for the top bar
-//        witch = new Witch(/* Initial witch position */);
+        player = new Player(32, 64); // Spawn at array index (19, 19) // Subtract 30 for the top bar
+        witch = new Witch(32, 32);
         gameMap = new GameMap("src/main/resources/map.png");
         isRunning = false;
 
@@ -84,11 +88,14 @@ public class Game {
     }
 
     private void run() {
+
         while (isRunning) {
             handleInput();
 
             long currentTime = System.nanoTime();
             deltaTime += (currentTime - lastTime) / 1e9;
+            witchDeltaTime += (currentTime - lastTime) / 1e9;
+//            System.out.println(deltaTime);
             lastTime = currentTime;
 
             // Check if movable based on deltaTime
@@ -97,6 +104,23 @@ public class Game {
                 deltaTime -= TIME_PER_FRAME;
             } else {
                 movable = false;
+            }
+//            System.out.println(deltaTime);
+
+//            // Check if it's time to track the player
+//            trackPlayerTimer += deltaTime;
+////            System.out.println(trackPlayerTimer);
+//            if (trackPlayerTimer >= TRACK_PLAYER_INTERVAL) {
+//                witch.trackPlayer(gameMap, player);
+//                trackPlayerTimer = 0; // Reset the timer
+//            }
+
+            // Check if it's time to track the player
+            trackPlayerTimer += deltaTime;
+//            System.out.println(trackPlayerTimer);
+            if (trackPlayerTimer >= TRACK_PLAYER_INTERVAL) {
+                witch.trackPlayer(gameMap, player);
+                trackPlayerTimer = 0; // Reset the timer
             }
 
             // Get the player's current position
@@ -127,8 +151,12 @@ public class Game {
 //                System.out.println(currentTime);
                 player.setX(nextPlayerX);
                 player.setY(nextPlayerY);
+                player.eatCookies(gameMap);
             }
 
+            if (movable) {
+                witch.update();
+            }
 //            player.update(); // You can implement player update logic if needed
 //            witch.update(); // You can implement witch update logic if needed
 //            display.clear();
@@ -136,7 +164,6 @@ public class Game {
 //            player.draw(display.getGraphics());
 //            witch.draw(display.getGraphics());
 //            display.update();
-
 
 
 //            player.update();
@@ -166,9 +193,11 @@ public class Game {
 //                    player.moveDown();
 ////                    System.out.println(player.getX()+ " " + player.getY());
 //                }
+//                witch.trackPlayer(gameMap, player);
+                gameMap.drawCookies(g);
 
                 player.draw(g);
-//                witch.draw(g);
+                witch.draw(g);
                 display.update();
                 g.dispose();
             }
