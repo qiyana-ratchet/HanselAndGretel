@@ -25,14 +25,14 @@ public class Game {
     private boolean movable = true; // Initialize as movable
 
     private double trackPlayerTimer = 0;
-    private final double TRACK_PLAYER_INTERVAL = 10; // 5 seconds in milliseconds
+    private final double TRACK_PLAYER_INTERVAL = 50; // track seconds
     private double witchDeltaTime;
 
     public Game(String title, int width, int height) {
         display = new Display(title, width, height);
 //        player = new Player(19 * 32, 19 * 32); // Spawn at array index (19, 19) // Subtract 30 for the top bar
-        player = new Player(32, 64); // Spawn at array index (19, 19) // Subtract 30 for the top bar
-        witch = new Witch(32, 32);
+        player = new Player(42, 80); // Spawn at array index (19, 19) // Subtract 30 for the top bar
+        witch = new Witch(445, 490);
         gameMap = new GameMap("src/main/resources/map.png");
         isRunning = false;
 
@@ -155,7 +155,8 @@ public class Game {
             }
 
             if (movable) {
-                witch.update();
+                witch.update(gameMap.getMapTiles(), player);
+//                witch.update();
             }
 //            player.update(); // You can implement player update logic if needed
 //            witch.update(); // You can implement witch update logic if needed
@@ -193,11 +194,41 @@ public class Game {
 //                    player.moveDown();
 ////                    System.out.println(player.getX()+ " " + player.getY());
 //                }
+
+                // Check for collision between player and witch
+                if (player.collidesWith(witch)) {
+                    if (player.getLife() > 0 && !player.isInvincible()) {
+                        player.decreaseLife(); // Deduct 1 heart
+                    }
+                }
+                player.update(); // Update player's invincibility status
+
+//                gameMap.clearCookies();
+
+                // Check if the player is at (550, 550) and the cookie count is zero
+                if (!gameMap.goalReached() && player.getX() >= 550 && player.getX() <= 610 && player.getY() >= 550 && player.getY() <= 610 && gameMap.getCookies().isEmpty()) {
+                    gameMap.setGoalReached(true);
+                }
+//                g.setColor(Color.BLACK);
+//                g.fillRect(550, 550, 590 - 530, 590 - 530);
+
 //                witch.trackPlayer(gameMap, player);
                 gameMap.drawCookies(g);
-
+                gameMap.drawHome(g);
+                gameMap.drawStatusBar(g, player.getLife());
                 player.draw(g);
                 witch.draw(g);
+
+                // Display the "GOAL" banner if the goal has been reached
+                if (gameMap.goalReached()) {
+                    gameMap.drawGoalBanner(g);
+                }
+
+                // Check if the player's life is 0
+                if (player.getLife() <= 0 && !gameMap.goalReached()) {
+                    drawGameLostBanner(g);
+                }
+
                 display.update();
                 g.dispose();
             }
@@ -208,8 +239,21 @@ public class Game {
         System.exit(0);
     }
 
+    private void drawGameLostBanner(Graphics g) {
+        g.setColor(Color.BLACK);
+//        g.fillRect(0, 0, screenWidth, screenHeight); // Fill the background with black
+
+        // Draw the "Game Lost" banner image at the center of the screen
+        if (gameMap.getGameoverImage() != null) {
+            int x = (640 - gameMap.getGameoverImage().getWidth()) / 2;
+            int y = (690 - gameMap.getGameoverImage().getHeight()) / 2;
+            g.drawImage(gameMap.getGameoverImage(), x, y, null);
+        }
+    }
+
+
     public static void main(String[] args) {
-        Game game = new Game("Henzel & Gretel Pacman", 640, 640 + 30);
+        Game game = new Game("Henzel & Gretel Pacman", 640, 640 + 50);
         game.start();
     }
 }

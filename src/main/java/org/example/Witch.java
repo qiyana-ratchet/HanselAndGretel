@@ -11,11 +11,11 @@ import java.util.List;
 public class Witch {
     private int x, y; // Witch's current position
     private int dx, dy; // Movement speed
-    private int targetX, targetY; // Player's position (target)
+    //    private int targetX, targetY; // Player's position (target)
     private List<Position> route; // List to store the route from Witch to player
 
     private BufferedImage witchImage; // Witch's image
-    private int witchSpeed = 3;
+    private int witchSpeed = 2;
 
     public Witch(int initialX, int initialY) {
         x = initialX;
@@ -24,10 +24,19 @@ public class Witch {
         dy = 3;
 
         try {
-            witchImage = ImageIO.read(new File("src/main/resources/witch.png"));
+//            witchImage = ImageIO.read(new File("src/main/resources/witch.png"));
+            witchImage = ImageIO.read(new File("src/main/resources/witch2.png"));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 
     public void draw(Graphics g) {
@@ -36,113 +45,175 @@ public class Witch {
         }
     }
 
-    public void update() {
+//    public void update() {
+//        if (route != null && !route.isEmpty()) {
+////            for (Position el : route) {
+////                System.out.println(el.x + " " + el.y);
+////            }
+//            System.out.println(route.get(0).x + " " + route.get(0).y);
+//
+//            System.out.println("Following the route...");
+//            Position nextPosition = route.get(0);
+//            int dx = nextPosition.x * 32 - x;
+//            int dy = nextPosition.y * 32 - y;
+//
+//            System.out.println("nx, x, ny, y: " + nextPosition.x + " " + x + " " + nextPosition.y + " " + y);
+//            System.out.println("dx, dy: " + dx + " " + dy);
+//
+//            if (dx == 0 && dy == 0) {
+//                route.remove(0);
+//                return;
+//            }
+//
+//            // Calculate the distance to the next position
+//            double distance = Math.sqrt(dx * dx + dy * dy);
+//
+//            System.out.println("distance " + distance);
+//
+//            // Normalize the direction vector
+//            double directionX = dx / distance;
+//            double directionY = dy / distance;
+//            System.out.println("dirX, dirY: " + directionX + " " + directionY);
+//
+//            // Adjust Witch's position based on movement speed
+////            if (!Double.isNaN(directionX) && !Double.isNaN(directionY)) {
+//            x += (int) (directionX * witchSpeed);
+//            y += (int) (directionY * witchSpeed);
+////            }
+//            System.out.println("Moving witch to x,y: " + x + " " + y);
+//
+//            // Remove the visited position from the route if the Witch has reached it
+//            if (Math.abs(x/32 - nextPosition.x) < witchSpeed &&
+//                    Math.abs(y/32 - nextPosition.y) < witchSpeed) {
+//                route.remove(0);
+//            }
+//
+//        }
+//    }
+
+    public void update(int[][] map, Player player) {
         if (route != null && !route.isEmpty()) {
-//            for (Position el : route) {
-//                System.out.println(el.x + " " + el.y);
-//            }
-            System.out.println(route.get(0).x + " " + route.get(0).y);
-
-            System.out.println("Following the route...");
-            Position nextPosition = route.get(0);
-            int dx = nextPosition.x * 32 - x;
-            int dy = nextPosition.y * 32 - y;
-
-            System.out.println("nx, x, ny, y: " + nextPosition.x + " " + x + " " + nextPosition.y + " " + y);
-            System.out.println("dx, dy: " + dx + " " + dy);
-
-            if (dx == 0 && dy == 0) {
-                route.remove(0);
-                return;
-            }
-
-            // Calculate the distance to the next position
-            double distance = Math.sqrt(dx * dx + dy * dy);
-
-            System.out.println("distance " + distance);
-
-            // Normalize the direction vector
-            double directionX = dx / distance;
-            double directionY = dy / distance;
-            System.out.println("dirX, dirY: " + directionX + " " + directionY);
-
-            // Adjust Witch's position based on movement speed
-//            if (!Double.isNaN(directionX) && !Double.isNaN(directionY)) {
-            x += (int) (directionX * witchSpeed);
-            y += (int) (directionY * witchSpeed);
-//            }
-            System.out.println("Moving witch to x,y: " + x + " " + y);
-
-            // Remove the visited position from the route if the Witch has reached it
-            if (Math.abs(x/32 - nextPosition.x) < witchSpeed &&
-                    Math.abs(y/32 - nextPosition.y) < witchSpeed) {
-                route.remove(0);
-            }
-
-        }
-    }
-
-    public void trackPlayer(GameMap gameMap, Player player) {
-        if (route == null || route.isEmpty()) {
-            System.out.println("Tracking player...");
-
-            targetX = player.getX() / 32;
-            targetY = player.getY() / 32;
-
-            System.out.println(targetX + " / " + targetY + " / " + x + " / " + y);
-
-            Queue<Position> queue = new LinkedList<>();
-            Set<Position> visited = new HashSet<>();
-            Map<Position, Position> parentMap = new HashMap<>(); // Map to store parent positions
-
-            // Initialize with Witch's current position
             int witchX = x / 32;
             int witchY = y / 32;
-            Position initialPosition = new Position(witchX, witchY);
-            queue.add(initialPosition);
-            visited.add(initialPosition);
-            parentMap.put(initialPosition, null);
+            int targetX = player.getX() / 32;
+            int targetY = player.getY() / 32;
+            if (witchX == targetX && witchY == targetY){
+                route.clear();
+//                System.out.println("CLEAR");
+                return;
+            }
+//            System.out.println("Following the route...");
+            Position nextPosition = route.get(0);
+            int nextX = nextPosition.x * 32;
+            int nextY = nextPosition.y * 32;
 
-            while (!queue.isEmpty()) {
-//                System.out.println(queue);
-                Position currentPosition = queue.poll();
+            // Calculate the distance to the next position
+            int dx = nextX - x;
+            int dy = nextY - y;
 
-                // Check if player's position is reached
-                if (currentPosition.x == targetX && currentPosition.y == targetY) {
-                    // Store the route from Witch to player
-                    route = new ArrayList<>();
-                    Position backtrackPosition = currentPosition;
-                    while (backtrackPosition != null) {
-                        route.add(backtrackPosition);
-                        backtrackPosition = parentMap.get(backtrackPosition);
-                    }
-                    Collections.reverse(route);
+            // Calculate the absolute values of dx and dy for movement
+            int absDx = Math.abs(dx);
+            int absDy = Math.abs(dy);
 
-                    System.out.println("Route found. Route: ");
-                    for (Position el : route) {
-                        System.out.println(el.x + " " + el.y);
-                    }
-
-                    System.out.println("Queue had been: ");
-                    for (Position el : queue){
-                        System.out.println(el.x + " " + el.y);
-                    }
-
-                    break;
+            // Determine the direction to move (up, down, left, or right)
+            if (absDx > absDy) {
+                if (dx > 0) {
+                    // Move right
+                    x += witchSpeed;
+                } else {
+                    // Move left
+                    x -= witchSpeed;
                 }
-
-                // Explore neighboring positions
-                for (Position neighbor : getValidNeighbors(currentPosition, gameMap)) {
-                    if (!visited.contains(neighbor)) {
-                        queue.add(neighbor);
-                        visited.add(neighbor);
-                        parentMap.put(neighbor, currentPosition);
-                    }
+            } else {
+                if (dy > 0) {
+                    // Move down
+                    y += witchSpeed;
+                } else {
+                    // Move up
+                    y -= witchSpeed;
                 }
+            }
+
+            // Check if the witch has reached the next position
+            if (Math.abs(x - nextX) <= witchSpeed && Math.abs(y - nextY) <= witchSpeed) {
+                // Remove the visited position from the route
+                route.remove(0);
             }
         }
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+
+
+
+    public void trackPlayer(GameMap gameMap, Player player) {
+//        if (route == null || route.isEmpty()) {
+//        System.out.println("Tracking player...");
+
+        int targetX = player.getX() / 32;
+        int targetY = player.getY() / 32;
+
+//        System.out.println(targetX + " / " + targetY + " / " + x + " / " + y);
+
+        Queue<Position> queue = new LinkedList<>();
+        Set<Position> visited = new HashSet<>();
+        Map<Position, Position> parentMap = new HashMap<>(); // Map to store parent positions
+
+        // Initialize with Witch's current position
+        int witchX = x / 32;
+        int witchY = y / 32;
+        Position initialPosition = new Position(witchX, witchY);
+        queue.add(initialPosition);
+        visited.add(initialPosition);
+        parentMap.put(initialPosition, null);
+
+        while (!queue.isEmpty() && (witchX != targetX && witchY != targetY)) {
+//                System.out.println(queue);
+            Position currentPosition = queue.poll();
+
+            // Check if player's position is reached
+            if (currentPosition.x == targetX && currentPosition.y == targetY) {
+                // Store the route from Witch to player
+                route = new ArrayList<>();
+                Position backtrackPosition = currentPosition;
+                while (backtrackPosition != null) {
+                    route.add(backtrackPosition);
+                    backtrackPosition = parentMap.get(backtrackPosition);
+                }
+                Collections.reverse(route);
+//                route.remove(0);
+
+//                System.out.println("Route found. Route: ");
+                for (Position el : route) {
+//                    System.out.println(el.x + " " + el.y);
+                }
+
+//                System.out.println("Queue had been: ");
+                for (Position el : queue) {
+//                    System.out.println(el.x + " " + el.y);
+                }
+
+                break;
+            }
+
+            // Explore neighboring positions
+            for (Position neighbor : getValidNeighbors(currentPosition, gameMap)) {
+                if (!visited.contains(neighbor)) {
+                    queue.add(neighbor);
+                    visited.add(neighbor);
+                    parentMap.put(neighbor, currentPosition);
+                }
+            }
+        }
+//        }
+    }
 
 
     //     Implement a method to get valid neighboring positions for the Witch to move to
@@ -171,6 +242,7 @@ public class Witch {
                 int tileX = newX;
                 int tileY = newY;
 
+//                System.out.println("tileX,Y: " + tileX + " " + tileY);
                 // Check if the tile at the new position is not a wall (0)
                 if (gameMap.getTileAt(tileX, tileY) != 0) {
                     neighbors.add(new Position(newX, newY));
